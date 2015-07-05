@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"strings"
 
+	"github.com/outdoorsy/gorq/filters"
 	"github.com/outdoorsy/gorq/interfaces"
 )
 
@@ -47,14 +48,49 @@ func (plan *QueryPlan) addSelectColumns(statement *Statement) error {
 	if len(plan.Errors) > 0 {
 		return plan.Errors[0]
 	}
-	for index, col := range plan.table.Columns {
-		if !col.Transient {
+	for index, m := range plan.colMap {
+		if m.doSelect {
 			if index != 0 {
 				statement.query.WriteString(",")
 			}
-			statement.query.WriteString(plan.QuotedTable())
-			statement.query.WriteString(".")
-			statement.query.WriteString(plan.dbMap.Dialect.QuoteField(col.ColumnName))
+			var err error
+			selectClause := m.quotedTable + "." + m.quotedColumn
+			if m.selectTarget != m.field {
+				switch src := m.selectTarget.(type) {
+				case filters.SqlWrapper:
+					actualValue := src.ActualValue()
+					newArgs, sqlValue, err := plan.argOrColumn(actualValue)
+					if err != nil {
+						return err
+					}
+					statement.args = append(statement.args, newArgs...)
+					selectClause = src.WrapSql(sqlValue)
+				case filters.MultiSqlWrapper:
+					values := src.ActualValues()
+					sqlValues := make([]string, 0, len(values))
+					for _, v := range values {
+						newArgs, sqlValue, err := plan.argOrColumn(v)
+						if err != nil {
+							return err
+						}
+						sqlValues = append(sqlValues, sqlValue)
+						statement.args = append(statement.args, newArgs...)
+					}
+					selectClause = src.WrapSql(sqlValues...)
+				default:
+					var newArgs []interface{}
+					newArgs, selectClause, err = plan.argOrColumn(m.field)
+					if err != nil {
+						return err
+					}
+					statement.args = append(statement.args, newArgs...)
+				}
+			}
+			statement.query.WriteString(selectClause)
+			if m.alias != "" {
+				statement.query.WriteString(" AS ")
+				statement.query.WriteString(m.alias)
+			}
 		}
 	}
 	return nil
