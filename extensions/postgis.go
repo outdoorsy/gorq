@@ -11,6 +11,8 @@ import (
 )
 
 const (
+	// DefaultSRID represents the default SRID to use for PostGIS
+	// geometry points representing a geographical location.
 	DefaultSRID = 4326
 )
 

@@ -172,6 +172,7 @@ type UpdateQuery interface {
 	// Equal(fieldPtr, value) is just sugar for
 	// Filter(filters.Equal(fieldPtr, value)).
 	In(fieldPtr interface{}, values ...interface{}) UpdateQuery
+	InSubQuery(fieldPtr interface{}, subQuery filters.SubQuery) UpdateQuery
 	Like(fieldPtr interface{}, pattern string) UpdateQuery
 	Equal(fieldPtr interface{}, value interface{}) UpdateQuery
 	NotEqual(fieldPtr interface{}, value interface{}) UpdateQuery
@@ -218,6 +219,7 @@ type JoinQuery interface {
 	// methods on WhereQuery.  Equal(fieldPtr, value) is sugar for
 	// On(filters.Equal(fieldPtr, value)).
 	In(fieldPtr interface{}, values ...interface{}) JoinQuery
+	InSubQuery(fieldPtr interface{}, subQuery filters.SubQuery) JoinQuery
 	Like(fieldPtr interface{}, pattern string) JoinQuery
 	Equal(fieldPtr interface{}, value interface{}) JoinQuery
 	NotEqual(fieldPtr interface{}, value interface{}) JoinQuery
@@ -254,6 +256,7 @@ type WhereQuery interface {
 	// Equal(fieldPtr, value) is just sugar for
 	// Filter(filters.Equal(fieldPtr, value)).
 	In(fieldPtr interface{}, values ...interface{}) WhereQuery
+	InSubQuery(fieldPtr interface{}, subQuery filters.SubQuery) WhereQuery
 	Like(fieldPtr interface{}, pattern string) WhereQuery
 	Equal(fieldPtr interface{}, value interface{}) WhereQuery
 	NotEqual(fieldPtr interface{}, value interface{}) WhereQuery
