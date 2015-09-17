@@ -34,15 +34,13 @@ func prepareForCache(data []byte) (encoded string, err error) {
 			err = closeErr
 		} else {
 			encoded = string(b.Bytes())
-			fmt.Println("encoded is now", len(encoded))
 		}
 	}()
 
-	bs, err := w.Write(data)
+	_, err = w.Write(data)
 	if err != nil {
 		return "", err
 	}
-	fmt.Println("compressed to ", bs)
 	err = w.Flush()
 	if err != nil {
 		return "", err

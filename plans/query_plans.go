@@ -808,13 +808,11 @@ func (plan *QueryPlan) cachedSelect(target reflect.Value, query string) []interf
 	}
 	result, err := plan.cache.Get(key)
 	if err != nil || result == "" {
-		fmt.Println("after get, didn't work - ", err, len(result))
 		return nil
 	}
 
 	cached, err := restoreFromCache(result)
 	if err != nil {
-		fmt.Println("restore from cache err", err)
 		return nil
 	}
 
@@ -838,7 +836,6 @@ func (plan *QueryPlan) cachedSelect(target reflect.Value, query string) []interf
 		selectTarget = reflect.ValueOf(&results)
 	}
 	if err := plan.unmarshalCachedResults(cached, selectTarget, targetType); err != nil {
-		fmt.Println("unmarshalCachedResults err", err)
 		return nil
 	}
 	return results
@@ -853,7 +850,6 @@ func (plan *QueryPlan) Select() ([]interface{}, error) {
 
 	if !plan.cachingDisabled {
 		if result := plan.cachedSelect(plan.target, query); result != nil {
-			fmt.Println("pulled from cache", result)
 			return result, nil
 		}
 	}
@@ -934,7 +930,6 @@ func (plan *QueryPlan) cacheResults(results interface{}, query string) {
 		// We don't want to cache this.
 		return
 	}
-	// fmt.Println("about to encode to json: ", cacheData)
 	raw, err := json.Marshal(cacheData)
 	if err != nil {
 		log.Printf("Error from marshal: %v", err)

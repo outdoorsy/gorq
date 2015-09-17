@@ -1,7 +1,6 @@
 package cache
 
 import (
-	"fmt"
 	"sync"
 
 	"github.com/outdoorsy/gorp"
@@ -85,9 +84,7 @@ func (m *Memcachier) related(table *gorp.TableMap) []*gorp.TableMap {
 // Set sets a key:value pair in the cache, and relates that key to
 // all entries in the tables slice.
 func (m *Memcachier) Set(tables []*gorp.TableMap, key, value string) error {
-	fmt.Println("setting key", key, len(value))
 	_, err := m.Conn.Set(key, value, 0, defaultCacheExpirationTime, 0)
-	fmt.Println("setting key err?", err)
 	for _, t := range tables {
 		m.keys.add(t, key)
 	}
@@ -96,13 +93,10 @@ func (m *Memcachier) Set(tables []*gorp.TableMap, key, value string) error {
 
 // Get returns the value for key.
 func (m *Memcachier) Get(key string) (string, error) {
-	fmt.Println("getting key", key)
 	s, _, _, err := m.Conn.Get(key)
 	if err != nil {
-		fmt.Println("error getting key", err)
 		return "", err
 	}
-	fmt.Println("got key", key)
 	return s, err
 }
 
