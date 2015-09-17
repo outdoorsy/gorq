@@ -25,24 +25,30 @@ func fullTypePath(object interface{}) string {
 	return t.PkgPath() + "." + t.Name()
 }
 
-func prepareForCache(data string) (encoded string, err error) {
+func prepareForCache(data []byte) (encoded string, err error) {
 	var b bytes.Buffer
 	w := gzip.NewWriter(&b)
 	defer func() {
 		closeErr := w.Close()
 		if err == nil && closeErr != nil {
 			err = closeErr
+		} else {
+			encoded = string(b.Bytes())
+			fmt.Println("encoded is now", len(encoded))
 		}
 	}()
-	err = json.NewEncoder(w).Encode(data)
+
+	bs, err := w.Write(data)
 	if err != nil {
 		return "", err
 	}
+	fmt.Println("compressed to ", bs)
 	err = w.Flush()
 	if err != nil {
 		return "", err
 	}
-	return string(b.Bytes()), nil
+
+	return
 }
 
 func restoreFromCache(encoded string) (decoded []interface{}, err error) {
