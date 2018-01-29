@@ -1,12 +1,10 @@
 package gorq
 
 import (
-	"database/sql"
 	"reflect"
 	"testing"
 
 	_ "github.com/mattn/go-sqlite3"
-	"github.com/outdoorsy/gorp"
 	"github.com/outdoorsy/gorq/interfaces"
 	"github.com/outdoorsy/gorq/plans"
 	"github.com/stretchr/testify/suite"
@@ -23,13 +21,10 @@ type QueryTestSuite struct {
 }
 
 func (suite *QueryTestSuite) SetupSuite() {
-	dbMap := new(DbMap)
-	dbMap.Dialect = gorp.SqliteDialect{}
-	connection, err := sql.Open("sqlite3", "/tmp/gorptest.bin")
+	dbMap, err := Open("sqlite3", "/tmp/gorptest.bin", nil)
 	if !suite.NoError(err) {
 		suite.T().FailNow()
 	}
-	dbMap.Db = connection
 	dbMap.AddTable(ValidStruct{})
 	suite.Exec = dbMap
 }

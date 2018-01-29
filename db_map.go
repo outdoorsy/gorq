@@ -1,6 +1,7 @@
 package gorq
 
 import (
+	"database/sql"
 	"errors"
 	"reflect"
 
@@ -24,6 +25,36 @@ type SqlExecutor interface {
 type DbMap struct {
 	gorp.DbMap
 	joinOps []plans.JoinOp
+}
+
+// Open initialize a new db connection, need to import driver first, e.g:
+//
+//     import _ "github.com/lib/pq"
+//     func main() {
+//       db, err := gorq.Open("postgres", "postgresql://hostname/dbname", nil)
+//     }
+//
+// `gorp` TypeConverter is supported if need, see `github.com/outdoorsy/gorp`
+func Open(dialect string, connStr string, typeConvertor gorp.TypeConverter) (dbMap *DbMap, err error) {
+	db, err := sql.Open(dialect, connStr)
+	if err != nil {
+		return nil, err
+	}
+
+	dbMap = &DbMap{
+		DbMap: gorp.DbMap{
+			Db:            db,
+			Dialect:       gorp.PostgresDialect{},
+			TypeConverter: typeConvertor,
+		},
+	}
+
+	return dbMap, nil
+}
+
+// Close close current db connection
+func (dbMap *DbMap) Close() error {
+	return dbMap.Db.Close()
 }
 
 func (m *DbMap) JoinOp(target, fieldPtrOrName interface{}, op plans.JoinFunc) error {
