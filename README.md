@@ -1,6 +1,3 @@
-[![Build Status](https://drone.io/github.com/nelsam/gorq/status.png)](https://drone.io/github.com/nelsam/gorq/latest) [![Coverage Status](https://coveralls.io/repos/nelsam/gorq/badge.svg)](https://coveralls.io/r/nelsam/gorq) [![GoDoc](https://godoc.org/github.com/nelsam/gorq?status.png)](http://godoc.org/github.com/nelsam/gorq)
-
-
 gorq
 ============
 
@@ -44,23 +41,20 @@ to the programmer.
 Use go get and import the package:
 
 ```bash
-go get github.com/nelsam/gorq
+go get github.com/outdoorsy/gorq
 ```
 
 ```go
-import "github.com/nelsam/gorq"
+import "github.com/outdoorsy/gorq"
+import _ "github.com/lib/pq"
 ```
 
-Then, set up your DB map using `gorq.DbMap` and use gorp as
-normal:
-
 ```go
-var dbMap = new(gorq.DbMap)
-dbMap.Db = dbConnection
-dbMap.Dialect = dbDialect
+dbMap, err := gorq.Open("postgres", "postgresql://hostname/dbname", nil)
+defer dbMap.Close()
 
 // Example query
-ref := new(Model)
+ref := &Model{}
 results, err := dbMap.Select(ref).
     Where().
     Equal(&ref.Id, testId).
@@ -69,7 +63,7 @@ results, err := dbMap.Select(ref).
 
 `gorq.DbMap` includes all of the functionality of
 `gorp.DbMap`, with a few extensions.  See
-[the documentation for gorq](http://godoc.org/github.com/nelsam/gorq)
+[the documentation for gorq](http://godoc.org/github.com/outdoorsy/gorq)
 for details on the extensions.  See
 [the documentation for gorp](http://godoc.org/github.com/go-gorp/gorp)
 for details on the functionality provided by gorp.
