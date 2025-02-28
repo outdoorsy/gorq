@@ -429,3 +429,25 @@ func ConvertTo(filter Filter, to string) Filter {
 		to:               to,
 	}
 }
+
+// RawSQLFilter is a filter that allows using raw SQL conditions.
+// This is useful for complex conditions that cannot be expressed
+// using the standard filter types.
+type RawSQLFilter struct {
+	sql string
+}
+
+// NewRawSQLFilter creates a new RawSQLFilter with the given SQL condition
+func NewRawSQLFilter(sql string) *RawSQLFilter {
+	return &RawSQLFilter{sql: sql}
+}
+
+// ActualValues returns nil since raw SQL filters don't use parameterized values
+func (f *RawSQLFilter) ActualValues() []interface{} {
+	return nil
+}
+
+// Where returns the raw SQL condition
+func (f *RawSQLFilter) Where(values ...string) string {
+	return f.sql
+}
